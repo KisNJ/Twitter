@@ -7,11 +7,19 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import { Loading } from "~/components/Loading";
+import { useState } from "react";
 dayjs.extend(relativeTime);
 const CreatePostWizard = () => {
   const { user } = useUser();
+  const [content, setContent] = useState("");
   if (!user) return <div>Log in to post</div>;
-
+  const ctx = api.useContext();
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setContent("");
+      void ctx.posts.getAll.invalidate();
+    },
+  });
   return (
     <div className="flex w-full gap-3">
       <Image
@@ -25,7 +33,11 @@ const CreatePostWizard = () => {
         type="text"
         placeholder="Type some emojis!"
         className="grow bg-transparent outline-none"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        disabled={isPosting}
       />
+      <button onClick={() => mutate({ content })}>Submit</button>
     </div>
   );
 };
@@ -47,7 +59,7 @@ const PostView = (props: PostWithAuthor) => {
           <span className="px-2">•</span>
           <span className="font-thin">{dayjs(post.createdAt).fromNow()}</span>
         </div>
-        <span>{post.content}</span>
+        <span className="text-xl">{post.content}</span>
       </div>
     </div>
   );
