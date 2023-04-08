@@ -24,8 +24,7 @@ const SinglePostPage: NextPage<{ postId: string }> = ({ postId }) => {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const postId = context.params?.id;
-  if (typeof postId !== "string") throw new Error("no slug");
-
+  if (typeof postId !== "string") throw new Error("no id");
   const ssg = generateSSGHelper();
   await ssg.posts.getById.prefetch({ postId });
   return {
