@@ -1,14 +1,17 @@
 import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
-
+import toast from "react-hot-toast";
+import { Button } from "~/components/Button";
 import { type RouterOutputs, api } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import { Loading } from "~/components/Loading";
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 dayjs.extend(relativeTime);
+
 const CreatePostWizard = () => {
   const { user } = useUser();
   const [content, setContent] = useState("");
@@ -18,6 +21,20 @@ const CreatePostWizard = () => {
     onSuccess: () => {
       setContent("");
       void ctx.posts.getAll.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0], {
+          position: "bottom-center",
+          duration: 2500,
+        });
+      } else {
+        toast.error("Failed to post.", {
+          position: "bottom-center",
+          duration: 2500,
+        });
+      }
     },
   });
   return (
@@ -36,8 +53,36 @@ const CreatePostWizard = () => {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         disabled={isPosting}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (content !== "") {
+              mutate({ content });
+            }
+          }
+        }}
       />
-      <button onClick={() => mutate({ content })}>Submit</button>
+      <Button
+        onClick={() => mutate({ content })}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (content !== "") {
+              mutate({ content });
+            }
+          }
+        }}
+        disabled={isPosting}
+      >
+        {!isPosting ? (
+          "Post"
+        ) : (
+          <div className="flex items-center">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Please wait
+          </div>
+        )}
+      </Button>
     </div>
   );
 };
