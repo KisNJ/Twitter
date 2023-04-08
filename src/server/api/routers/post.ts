@@ -89,4 +89,17 @@ export const postsRouter = createTRPCRouter({
       });
       return addAuthorToPosts(posts);
     }),
+  getById: publicProcedure
+    .input(z.object({ postId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const post = await ctx.prisma.post.findFirst({
+        where: { id: input.postId },
+      });
+      if (!post)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Post does not exist.",
+        });
+      return (await addAuthorToPosts([post]))[0];
+    }),
 });
