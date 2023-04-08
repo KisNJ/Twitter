@@ -10,6 +10,7 @@ import Image from "next/image";
 import { Loading } from "~/components/Loading";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
@@ -100,9 +101,13 @@ const PostView = (props: PostWithAuthor) => {
       />
       <div className="flex flex-col">
         <div className="flex text-slate-300">
-          <span>{`@${author.username}`}</span>
+          <Link href={`/@${author.username}`}>
+            <span>{`@${author.username}`}</span>
+          </Link>
           <span className="px-2">•</span>
-          <span className="font-thin">{dayjs(post.createdAt).fromNow()}</span>
+          <Link href={`/post/${post.id}`}>
+            <span className="font-thin">{dayjs(post.createdAt).fromNow()}</span>
+          </Link>
         </div>
         <span className="text-xl">{post.content}</span>
       </div>
