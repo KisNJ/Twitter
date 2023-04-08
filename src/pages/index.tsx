@@ -2,16 +2,14 @@ import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import toast from "react-hot-toast";
 import { Button } from "~/components/Button";
-import { type RouterOutputs, api } from "~/utils/api";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
+import { api } from "~/utils/api";
+
 import Image from "next/image";
 import { Loading } from "~/components/Loading";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
 import { PageLayout } from "~/components/PageLayout";
-dayjs.extend(relativeTime);
+import { PostView } from "~/components/PostView";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -87,33 +85,7 @@ const CreatePostWizard = () => {
     </div>
   );
 };
-type PostWithAuthor = RouterOutputs["posts"]["getAll"][number];
-const PostView = (props: PostWithAuthor) => {
-  const { post, author } = props;
-  return (
-    <div className="flex items-center gap-4 border-b border-slate-400 p-4">
-      <Image
-        width={48}
-        height={48}
-        className="h-12 w-12 rounded-full"
-        alt="user profile picture"
-        src={author.profileImageUrl}
-      />
-      <div className="flex flex-col">
-        <div className="flex text-slate-300">
-          <Link href={`/@${author.username}`}>
-            <span>{`@${author.username}`}</span>
-          </Link>
-          <span className="px-2">•</span>
-          <Link href={`/post/${post.id}`}>
-            <span className="font-thin">{dayjs(post.createdAt).fromNow()}</span>
-          </Link>
-        </div>
-        <span className="text-xl">{post.content}</span>
-      </div>
-    </div>
-  );
-};
+
 const Feed = () => {
   const { data, isLoading } = api.posts.getAll.useQuery();
   if (isLoading) return <Loading size={60} />;
